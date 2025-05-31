@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <title>속삭임의 오솔길</title>
+   <style>
+       :root {
+           --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+           --font-serif: 'Georgia', 'Times New Roman', serif;
+
+           --bg-primary: #0a0a0b;
+           --bg-secondary: #1a1a1d;
+           --bg-tertiary: #2a2a2f;
+           --bg-surface: #1e1e23;
+           --bg-surface-elevated: #252529;
+           
+           --text-primary: #f5f5f7;
+           --text-secondary: #a1a1a6;
+           --text-tertiary: #6d6d73;
+           --text-accent: #007aff;
+           
+           --accent-primary: #ff6b35;
+           --accent-secondary: #ff8c42;
+           --accent-soft: rgba(255, 107, 53, 0.1);
+           
+           --border-subtle: rgba(255, 255, 255, 0.1);
+           --border-medium: rgba(255, 255, 255, 0.2);
+           
+           --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+           --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+           --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);
+           
+           --radius-sm: 6px;
+           --radius-md: 12px;
+           --radius-lg: 20px;
+           --radius-xl: 28px;
+           
+           --transition-fast: 0.15s ease-out;
+           --transition-medium: 0.3s ease-out;
+           --transition-slow: 0.5s ease-out;
+       }
+
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+           -webkit-tap-highlight-color: transparent;
+       }
+
+       html, body {
+           height: 100%;
+           overflow: hidden;
+       }
+
+       body {
+           font-family: var(--font-main);
+           background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+           color: var(--text-primary);
+           font-size: 16px;
+           line-height: 1.5;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+
+       .app-container {
+           width: 100%;
+           height: 100%;
+           max-width: 420px;
+           background: var(--bg-surface);
+           backdrop-filter: blur(20px);
+           border: 1px solid var(--border-subtle);
+           display: flex;
+           flex-direction: column;
+           overflow: hidden;
+           position: relative;
+       }
+
+       /* Page System */
+       .page {
+           display: none;
+           flex-direction: column;
+           height: 100%;
+           width: 100%;
+           position: relative;
+           opacity: 0;
+           transform: translateY(30px) scale(0.95);
+           transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+       }
+       
+       .page.active {
+           display: flex;
+           opacity: 1;
+           transform: translateY(0) scale(1);
+       }
+
+       .page.slide-out {
+           opacity: 0;
+           transform: translateY(-30px) scale(1.05);
+       }
+
+       /* Header */
+       .app-header {
+           padding: 16px 24px;
+           background: var(--bg-surface-elevated);
+           border-bottom: 1px solid var(--border-subtle);
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+           min-height: 64px;
+           backdrop-filter: blur(10px);
+       }
+
+       .header-title {
+           font-family: var(--font-serif);
+           font-size: 18px;
+           font-weight: 600;
+           color: var(--text-primary);
+           letter-spacing: -0.01em;
+       }
+
+       .header-action {
+           width: 40px;
+           height: 40px;
+           border-radius: var(--radius-md);
+           border: none;
+           background: transparent;
+           color: var(--text-secondary);
+           cursor: pointer;
+           transition: all var(--transition-fast);
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           position: relative;
+       }
+
+       .header-action:hover {
+           background: var(--bg-tertiary);
+           color: var(--text-primary);
+           transform: scale(1.1) rotate(5deg);
+           box-shadow: var(--shadow-sm);
+       }
+
+       .header-action:active {
+           transform: scale(0.9) rotate(-2deg);
+       }
+
+       /* Icon System */
+       .icon {
+           width: 20px;
+           height: 20px;
+           position: relative;
+           display: inline-block;
+       }
+
+       .icon-back::before {
+           content: '';
+           position: absolute;
+           left: 8px;
+           top: 50%;
+           width: 6px;
+           height: 6px;
+           border-left: 2px solid currentColor;
+           border-bottom: 2px solid currentColor;
+           transform: translateY(-50%) rotate(45deg);
+       }
+
+       .icon-settings::before {
+           content: '';
+           position: absolute;
+           left: 50%;
+           top: 50%;
+           width: 16px;
+           height: 16px;
+           border: 2px solid currentColor;
+           border-radius: 50%;
+           transform: translate(-50%, -50%);
+       }
+
+       .icon-settings::after {
+           content: '';
+           position: absolute;
+           left: 50%;
+           top: 50%;
+           width: 6px;
+           height: 6px;
+           background: currentColor;
+           border-radius: 50%;
+           transform: translate(-50%, -50%);
+       }
+
+       .icon-mic {
+           width: 24px;
+           height: 24px;
+       }
+
+       .icon-mic::before {
+           content: '';
+           position: absolute;
+           left: 50%;
+           top: 20%;
+           width: 8px;
+           height: 12px;
+           border: 2px solid currentColor;
+           border-radius: 4px 4px 0 0;
+           transform: translateX(-50%);
+       }
+
+       .icon-mic::after {
+           content: '';
+           position: absolute;
+           left: 50%;
+           bottom: 20%;
+           width: 16px;
+           height: 2px;
+           background: currentColor;
+           transform: translateX(-50%);
+           border-radius: 1px;
+       }
+
+       .icon-stop {
+           width: 16px;
+           height: 16px;
+           background: currentColor;
+           border-radius: 2px;
+       }
+
+       .icon-add {
+           width: 20px;
+           height: 20px;
+           position: relative;
+       }
+
+       .icon-add::before,
+       .icon-add::after {
+           content: '';
+           position: absolute;
+           background: currentColor;
+           border-radius: 1px;
+       }
+
+       .icon-add::before {
+           left: 50%;
+           top: 20%;
+           width: 2px;
+           height: 60%;
+           transform: translateX(-50%);
+       }
+
+       .icon-add::after {
+           left: 20%;
+           top: 50%;
+           width: 60%;
+           height: 2px;
+           transform: translateY(-50%);
+       }
+
+       /* Content Areas */
+       .app-content {
+           flex: 1;
+           overflow-y: auto;
+           padding: 24px;
+           scroll-behavior: smooth;
+       }
+
+       .app-content::-webkit-scrollbar {
+           width: 4px;
+       }
+
+       .app-content::-webkit-scrollbar-track {
+           background: transparent;
+       }
+
+       .app-content::-webkit-scrollbar-thumb {
+           background: var(--text-tertiary);
+           border-radius: 2px;
+       }
+
+       .content-centered {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+           height: 100%;
+           text-align: center;
+           padding: 24px;
+       }
+
+       /* Auth Page */
+       .app-logo {
+           font-family: var(--font-serif);
+           font-size: 32px;
+           font-weight: 700;
+           background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+           -webkit-background-clip: text;
+           -webkit-text-fill-color: transparent;
+           background-clip: text;
+           margin-bottom: 24px;
+           letter-spacing: -0.02em;
+       }
+
+       .welcome-message {
+           font-size: 16px;
+           color: var(--text-secondary);
+           line-height: 1.6;
+           margin-bottom: 32px;
+           max-width: 300px;
+       }
+
+       /* Form Elements */
+       .input-field {
+           width: 100%;
+           padding: 16px 20px;
+           background: var(--bg-tertiary);
+           border: 2px solid var(--border-subtle);
+           border-radius: var(--radius-md);
+           color: var(--text-primary);
+           font-size: 16px;
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           margin-bottom: 16px;
+           position: relative;
+       }
+
+       .input-field:focus {
+           outline: none;
+           border-color: var(--accent-primary);
+           box-shadow: 0 0 0 4px var(--accent-soft), 0 8px 25px rgba(255, 107, 53, 0.2);
+           background: var(--bg-surface-elevated);
+           transform: translateY(-2px);
+       }
+
+       .input-field::placeholder {
+           color: var(--text-tertiary);
+           transition: all var(--transition-medium);
+       }
+
+       .input-field:focus::placeholder {
+           transform: translateY(-2px);
+           opacity: 0.7;
+       }
+
+       /* Buttons */
+       .btn {
+           font-family: var(--font-main);
+           padding: 16px 24px;
+           border-radius: var(--radius-md);
+           border: none;
+           cursor: pointer;
+           font-size: 16px;
+           font-weight: 600;
+           transition: all var(--transition-fast);
+           text-align: center;
+           position: relative;
+           overflow: hidden;
+       }
+
+       .btn::before {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: -100%;
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+           transition: left var(--transition-medium);
+       }
+
+       .btn:hover::before {
+           left: 100%;
+       }
+
+       .btn:hover {
+           transform: translateY(-3px) scale(1.02);
+           box-shadow: var(--shadow-lg);
+       }
+
+       .btn-primary {
+           background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+           color: white;
+           box-shadow: var(--shadow-sm);
+           position: relative;
+       }
+
+       .btn-primary::after {
+           content: '';
+           position: absolute;
+           inset: 0;
+           border-radius: inherit;
+           background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-primary) 100%);
+           opacity: 0;
+           transition: opacity var(--transition-fast);
+       }
+
+       .btn-primary:hover::after {
+           opacity: 1;
+       }
+
+       .btn-primary:hover {
+           transform: translateY(-4px) scale(1.03);
+           box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+       }
+
+       .btn-secondary {
+           background: var(--bg-tertiary);
+           color: var(--text-primary);
+           border: 1px solid var(--border-medium);
+       }
+
+       .btn-secondary:hover {
+           background: var(--bg-surface-elevated);
+           border-color: var(--border-medium);
+       }
+
+       .btn:active {
+           transform: scale(0.98);
+       }
+
+       .btn-full {
+           width: 100%;
+       }
+
+       .btn-group {
+           display: flex;
+           gap: 12px;
+           margin-top: 16px;
+       }
+
+       .btn-group .btn {
+           flex: 1;
+       }
+
+       /* Conversation List */
+       .conversation-item {
+           background: var(--bg-surface-elevated);
+           padding: 20px;
+           border-radius: var(--radius-md);
+           margin-bottom: 12px;
+           cursor: pointer;
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           border: 1px solid var(--border-subtle);
+           position: relative;
+           overflow: hidden;
+           opacity: 0;
+           transform: translateX(-20px);
+           animation: slideInLeft 0.6s ease-out forwards;
+       }
+
+       @keyframes slideInLeft {
+           to {
+               opacity: 1;
+               transform: translateX(0);
+           }
+       }
+
+       .conversation-item:nth-child(2) { animation-delay: 0.1s; }
+       .conversation-item:nth-child(3) { animation-delay: 0.2s; }
+       .conversation-item:nth-child(4) { animation-delay: 0.3s; }
+
+       .conversation-item::before {
+           content: '';
+           position: absolute;
+           left: 0;
+           top: 0;
+           width: 4px;
+           height: 100%;
+           background: transparent;
+           transition: all var(--transition-fast);
+       }
+
+       .conversation-item::after {
+           content: '';
+           position: absolute;
+           inset: 0;
+           background: linear-gradient(135deg, var(--accent-soft) 0%, transparent 100%);
+           opacity: 0;
+           transition: opacity var(--transition-fast);
+       }
+
+       .conversation-item.unread::before {
+           background: var(--accent-primary);
+           box-shadow: 0 0 10px var(--accent-primary);
+           animation: pulse-glow 2s ease-in-out infinite;
+       }
+
+       @keyframes pulse-glow {
+           0%, 100% { 
+               box-shadow: 0 0 5px var(--accent-primary);
+           }
+           50% { 
+               box-shadow: 0 0 20px var(--accent-primary), 0 0 30px var(--accent-primary);
+           }
+       }
+
+       .conversation-item:hover {
+           background: var(--bg-tertiary);
+           transform: translateY(-8px) translateX(8px);
+           box-shadow: var(--shadow-lg);
+           border-color: var(--border-medium);
+       }
+
+       .conversation-item:hover::after {
+           opacity: 1;
+       }
+
+       .conversation-sender {
+           font-weight: 600;
+           font-size: 16px;
+           color: var(--text-primary);
+           margin-bottom: 8px;
+       }
+
+       .conversation-meta {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           font-size: 14px;
+           color: var(--text-secondary);
+       }
+
+       .conversation-status {
+           padding: 4px 8px;
+           background: var(--accent-soft);
+           color: var(--accent-primary);
+           border-radius: var(--radius-sm);
+           font-size: 12px;
+           font-weight: 500;
+       }
+
+       /* Recording Interface */
+       .recording-container {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+           height: 100%;
+           padding: 40px 24px;
+       }
+
+       .recording-controls {
+           display: flex;
+           gap: 16px;
+           margin-bottom: 40px;
+       }
+
+       .record-type-btn {
+           padding: 12px 20px;
+           border-radius: var(--radius-lg);
+           border: 2px solid var(--border-medium);
+           background: transparent;
+           color: var(--text-secondary);
+           font-size: 14px;
+           font-weight: 500;
+           cursor: pointer;
+           transition: all var(--transition-fast);
+       }
+
+       .record-type-btn.selected {
+           border-color: var(--accent-primary);
+           background: var(--accent-soft);
+           color: var(--accent-primary);
+       }
+
+       .record-timer {
+           font-size: 48px;
+           font-weight: 300;
+           color: var(--text-primary);
+           margin-bottom: 32px;
+           font-variant-numeric: tabular-nums;
+           letter-spacing: -0.02em;
+       }
+
+       .record-button {
+           width: 120px;
+           height: 120px;
+           border-radius: 50%;
+           border: none;
+           background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+           color: white;
+           cursor: pointer;
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           box-shadow: var(--shadow-md);
+           margin-bottom: 40px;
+           position: relative;
+       }
+
+       .record-button::before {
+           content: '';
+           position: absolute;
+           inset: -10px;
+           border-radius: 50%;
+           background: conic-gradient(from 0deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
+           opacity: 0;
+           transition: opacity var(--transition-medium);
+           animation: rotate 3s linear infinite;
+       }
+
+       .record-button::after {
+           content: '';
+           position: absolute;
+           inset: -5px;
+           border-radius: 50%;
+           background: var(--bg-surface);
+           z-index: -1;
+       }
+
+       @keyframes rotate {
+           to {
+               transform: rotate(360deg);
+           }
+       }
+
+       .record-button:hover {
+           transform: scale(1.15);
+           box-shadow: 0 15px 40px rgba(255, 107, 53, 0.5);
+       }
+
+       .record-button:hover::before {
+           opacity: 1;
+       }
+
+       .record-button.recording {
+           background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+           animation: pulse-strong 1.5s ease-in-out infinite;
+           box-shadow: 0 0 30px rgba(255, 71, 87, 0.6);
+       }
+
+       .record-button.recording::before {
+           opacity: 1;
+           background: conic-gradient(from 0deg, #ff4757, #ff3838, #ff4757);
+       }
+
+       @keyframes pulse-strong {
+           0%, 100% { 
+               transform: scale(1);
+               box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+           }
+           50% { 
+               transform: scale(1.1);
+               box-shadow: 0 0 40px rgba(255, 71, 87, 0.8);
+           }
+       }
+
+       .record-status {
+           font-size: 16px;
+           color: var(--text-secondary);
+           margin-bottom: 24px;
+           text-align: center;
+       }
+
+       /* Messages */
+       .message-area {
+           flex: 1;
+           overflow-y: auto;
+           padding: 24px;
+           display: flex;
+           flex-direction: column;
+           gap: 16px;
+       }
+
+       .message-bubble {
+           max-width: 80%;
+           padding: 16px 20px;
+           border-radius: var(--radius-lg);
+           position: relative;
+           backdrop-filter: blur(10px);
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           opacity: 0;
+           transform: translateY(20px) scale(0.8);
+           animation: messageAppear 0.6s ease-out forwards;
+       }
+
+       @keyframes messageAppear {
+           to {
+               opacity: 1;
+               transform: translateY(0) scale(1);
+           }
+       }
+
+       .message-bubble:hover {
+           transform: translateY(-3px) scale(1.02);
+           box-shadow: var(--shadow-md);
+       }
+
+       .message-bubble.sent {
+           background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+           color: white;
+           align-self: flex-end;
+           border-bottom-right-radius: var(--radius-sm);
+           position: relative;
+           overflow: hidden;
+       }
+
+       .message-bubble.sent::before {
+           content: '';
+           position: absolute;
+           inset: 0;
+           background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+           opacity: 0;
+           transition: opacity var(--transition-fast);
+       }
+
+       .message-bubble.sent:hover::before {
+           opacity: 1;
+       }
+
+       .message-bubble.received {
+           background: var(--bg-surface-elevated);
+           color: var(--text-primary);
+           align-self: flex-start;
+           border-bottom-left-radius: var(--radius-sm);
+           border: 1px solid var(--border-subtle);
+           position: relative;
+       }
+
+       .message-bubble.received::before {
+           content: '';
+           position: absolute;
+           inset: 0;
+           background: linear-gradient(135deg, var(--accent-soft) 0%, transparent 100%);
+           opacity: 0;
+           transition: opacity var(--transition-fast);
+       }
+
+       .message-bubble.received:hover::before {
+           opacity: 1;
+       }
+
+       .message-timestamp {
+           font-size: 12px;
+           opacity: 0.7;
+           margin-top: 8px;
+           text-align: right;
+       }
+
+       .message-bubble.received .message-timestamp {
+           text-align: left;
+       }
+
+       /* Audio Player */
+       .audio-player {
+           width: 100%;
+           margin-top: 12px;
+           height: 40px;
+           background: rgba(0,0,0,0.2);
+           border-radius: var(--radius-md);
+           border: none;
+           color: inherit;
+       }
+
+       .audio-player::-webkit-media-controls-panel {
+           background-color: transparent;
+       }
+
+       /* Empty State */
+       .empty-state {
+           text-align: center;
+           padding: 60px 24px;
+           color: var(--text-secondary);
+       }
+
+       .empty-state-icon {
+           width: 80px;
+           height: 80px;
+           margin: 0 auto 24px;
+           background: var(--bg-tertiary);
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           opacity: 0.5;
+       }
+
+       .empty-state-title {
+           font-size: 18px;
+           font-weight: 600;
+           margin-bottom: 8px;
+           color: var(--text-primary);
+       }
+
+       .empty-state-description {
+           font-size: 14px;
+           line-height: 1.5;
+       }
+
+       /* Footer */
+       .app-footer {
+           padding: 20px;
+           background: var(--bg-surface-elevated);
+           border-top: 1px solid var(--border-subtle);
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+
+       .fab {
+           width: 56px;
+           height: 56px;
+           border-radius: 50%;
+           border: none;
+           background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+           color: white;
+           cursor: pointer;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           box-shadow: var(--shadow-md);
+           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+           position: relative;
+           overflow: hidden;
+       }
+
+       .fab::before {
+           content: '';
+           position: absolute;
+           inset: 0;
+           border-radius: 50%;
+           background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+           opacity: 0;
+           transform: scale(0);
+           transition: all var(--transition-medium);
+       }
+
+       .fab:hover {
+           transform: scale(1.2) rotate(90deg);
+           box-shadow: var(--shadow-lg);
+       }
+
+       .fab:hover::before {
+           opacity: 1;
+           transform: scale(1);
+       }
+
+       .fab:active {
+           transform: scale(1.1) rotate(180deg);
+       }
+
+       /* Settings */
+       .settings-item {
+           padding: 20px 0;
+           border-bottom: 1px solid var(--border-subtle);
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           cursor: pointer;
+           transition: all var(--transition-fast);
+       }
+
+       .settings-item:hover {
+           background: var(--accent-soft);
+           margin: 0 -24px;
+           padding-left: 24px;
+           padding-right: 24px;
+       }
+
+       .settings-item:last-child {
+           border-bottom: none;
+       }
+
+       .settings-label {
+           font-size: 16px;
+           color: var(--text-primary);
+       }
+
+       .settings-value {
+           font-size: 14px;
+           color: var(--text-secondary);
+       }
+
+       /* Loader */
+       .loader {
+           width: 40px;
+           height: 40px;
+           margin: 40px auto;
+           position: relative;
+       }
+
+       .loader::before,
+       .loader::after {
+           content: '';
+           position: absolute;
+           inset: 0;
+           border: 3px solid transparent;
+           border-top: 3px solid var(--accent-primary);
+           border-radius: 50%;
+           animation: spin-fast 1s linear infinite;
+       }
+
+       .loader::after {
+           border-top: 3px solid var(--accent-secondary);
+           animation: spin-slow 1.5s linear infinite reverse;
+           inset: 6px;
+       }
+
+       @keyframes spin-fast {
+           0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+       }
+
+       @keyframes spin-slow {
+           0% { transform: rotate(0deg); }
+           100% { transform: rotate(360deg); }
+       }
+
+       /* Toast */
+       .toast {
+           position: fixed;
+           bottom: 24px;
+           left: 50%;
+           transform: translateX(-50%);
+           background: var(--bg-surface-elevated);
+           color: var(--text-primary);
+           padding: 16px 24px;
+           border-radius: var(--radius-md);
+           box-shadow: var(--shadow-lg);
+           border: 1px solid var(--border-medium);
+           backdrop-filter: blur(10px);
+           z-index: 1000;
+           opacity: 0;
+           transition: all var(--transition-medium);
+           font-size: 14px;
+           max-width: 320px;
+           text-align: center;
+       }
+
+       .toast.show {
+           opacity: 1;
+           transform: translateX(-50%) translateY(-8px);
+       }
+
+       /* Responsive */
+       @media (max-width: 480px) {
+           .app-content {
+               padding: 16px;
+           }
+           
+           .message-bubble {
+               max-width: 85%;
+           }
+           
+           .record-button {
+               width: 100px;
+               height: 100px;
+           }
+           
+           .record-timer {
+               font-size: 40px;
+           }
+       }
+
+       /* Utilities */
+       .hidden { display: none !important; }
+       .mt-1 { margin-top: 16px; }
+       .mb-1 { margin-bottom: 16px; }
+       .text-center { text-align: center; }
+   </style>
+</head>
+<body>
+   <div class="app-container">
+       <div id="authPage" class="page"></div>
+       <div id="mainPage" class="page"></div>
+       <div id="recordPage" class="page"></div>
+       <div id="conversationPage" class="page"></div>
+       <div id="lastMessagePage" class="page"></div>
+       <div id="settingsPage" class="page"></div>
+   </div>
+
+   <script>
+       // State Management
+       class AppState {
+           constructor() {
+               this.state = {
+                   currentUser: { id: null, nickname: null, heartPieces: 5 },
+                   currentConversation: null,
+                   recordingState: 'idle',
+                   selectedRecordLength: 'short',
+                   conversations: [],
+                   messages: new Map()
+               };
+               this.listeners = new Map();
+           }
+
+           setState(key, value) {
+               const oldValue = this.state[key];
+               this.state[key] = value;
+               this.notifyListeners(key, value, oldValue);
+           }
+
+           getState(key) {
+               return this.state[key];
+           }
+
+           subscribe(key, callback) {
+               if (!this.listeners.has(key)) {
+                   this.listeners.set(key, new Set());
+               }
+               this.listeners.get(key).add(callback);
+               
+               return () => this.listeners.get(key).delete(callback);
+           }
+
+           notifyListeners(key, newValue, oldValue) {
+               const callbacks = this.listeners.get(key);
+               if (callbacks) {
+                   callbacks.forEach(callback => callback(newValue, oldValue));
+               }
+           }
+       }
+
+       // Event Manager
+       class EventManager {
+           constructor() {
+               this.listeners = new Map();
+           }
+
+           add(element, event, handler, options = {}) {
+               if (!element) return;
+               const key = `${element.id || 'element'}_${event}`;
+               this.remove(element, event);
+               element.addEventListener(event, handler, options);
+               this.listeners.set(key, { element, event, handler, options });
+           }
+
+           remove(element, event) {
+               if (!element) return;
+               const key = `${element.id || 'element'}_${event}`;
+               const listener = this.listeners.get(key);
+               if (listener) {
+                   element.removeEventListener(event, listener.handler, listener.options);
+                   this.listeners.delete(key);
+               }
+           }
+
+           removeAll() {
+               this.listeners.forEach(({ element, event, handler, options }) => {
+                   element.removeEventListener(event, handler, options);
+               });
+               this.listeners.clear();
+           }
+       }
+
+       // App Instance
+       const appState = new AppState();
+       const eventManager = new EventManager();
+       let mediaRecorder = null;
+       let audioChunks = [];
+       let recordingDuration = 0;
+       let recordingInterval = null;
+
+       // Constants
+       const MAX_SHORT_RECORD_TIME = 30;
+       const MAX_LONG_RECORD_TIME = 60;
+       const LONG_RECORD_COST = 1;
+       const LAST_TEXT_MESSAGE_COST = 1;
+       const CONVERSATION_EXPIRE_HOURS = 24;
+
+       // DOM Helpers
+       const $ = (selector) => document.querySelector(selector);
+       const $$ = (selector) => document.querySelectorAll(selector);
+
+       // Page Templates
+       const authPageHTML = `
+           <div class="content-centered">
+               <div class="app-logo">속삭임의 오솔길</div>
+               <p class="welcome-message">이곳에서는 목소리만이 당신을 드러냅니다. 잠시 세상의 소란을 잊고, 당신의 속삭임에 귀 기울여 보세요.</p>
+               <input type="text" id="nicknameInput" class="input-field" placeholder="사용할 호출명을 입력하세요">
+               <button id="startAuthBtn" class="btn btn-primary btn-full">오솔길 따라 걷기</button>
+           </div>
+       `;
+
+       const mainPageHTML = () => `
+           <header class="app-header">
+               <h1 class="header-title">울림이 머무는 곳</h1>
+               <button class="header-action" id="settingsBtn" aria-label="설정">
+                   <div class="icon icon-settings"></div>
+               </button>
+           </header>
+           <div class="app-content" id="conversationList">
+               <div class="loader"></div>
+           </div>
+           <footer class="app-footer">
+               <button class="fab" id="newConversationBtn" aria-label="새로운 속삭임 보내기">
+                   <div class="icon icon-add"></div>
+               </button>
+           </footer>
+       `;
+
+       // Navigation
+       function navigateTo(pageId, data = null) {
+           console.log(`Navigating to ${pageId}`, data);
+           
+           $$('.page').forEach(p => p.classList.remove('active'));
+           
+           const targetPage = $(`#${pageId}Page`);
+           if (!targetPage) return;
+
+           switch(pageId) {
+               case 'auth':
+                   renderAuthPage();
+                   break;
+               case 'main':
+                   renderMainPage();
+                   break;
+               case 'record':
+                   renderRecordPage(data);
+                   break;
+               case 'conversation':
+                   renderConversationPage(data);
+                   break;
+               case 'lastMessage':
+                   renderLastMessagePage(data);
+                   break;
+               case 'settings':
+                   renderSettingsPage();
+                   break;
+           }
+
+           setTimeout(() => {
+               targetPage.classList.add('active');
+           }, 50);
+       }
+
+       // Auth Page
+       function renderAuthPage() {
+           const page = $('#authPage');
+           page.innerHTML = authPageHTML;
+
+           const nicknameInput = $('#nicknameInput');
+           const startAuthBtn = $('#startAuthBtn');
+
+           eventManager.add(startAuthBtn, 'click', async () => {
+               const nickname = nicknameInput.value.trim();
+               if (nickname) {
+                   const user = { id: Date.now(), nickname, heartPieces: 5 };
+                   appState.setState('currentUser', user);
+                   showToast(`환영합니다, ${nickname}님!`);
+                   navigateTo('main');
+               } else {
+                   showToast('호출명을 입력해주세요');
+               }
+           });
+
+           eventManager.add(nicknameInput, 'keypress', (e) => {
+               if (e.key === 'Enter') {
+                   startAuthBtn.click();
+               }
+           });
+       }
+
+       // Main Page
+       function renderMainPage() {
+           const page = $('#mainPage');
+           page.innerHTML = mainPageHTML();
+
+           const settingsBtn = $('#settingsBtn');
+           const newConversationBtn = $('#newConversationBtn');
+
+           eventManager.add(settingsBtn, 'click', () => navigateTo('settings'));
+           eventManager.add(newConversationBtn, 'click', () => {
+               appState.setState('currentConversation', null);
+               navigateTo('record');
+           });
+
+           loadConversations();
+       }
+
+       function loadConversations() {
+           const listEl = $('#conversationList');
+           const conversations = appState.getState('conversations');
+
+           if (conversations.length === 0) {
+               listEl.innerHTML = `
+                   <div class="empty-state">
+                       <div class="empty-state-icon">
+                           <div class="icon icon-mic"></div>
+                       </div>
+                       <div class="empty-state-title">아직 도착한 울림이 없네요</div>
+                       <div class="empty-state-description">당신의 목소리로 첫 울림을 만들어보세요</div>
+                   </div>
+               `;
+               return;
+           }
+
+           const html = conversations.map(conv => {
+               const isUnread = conv.unread || false;
+               return `
+                   <div class="conversation-item ${isUnread ? 'unread' : ''}" data-id="${conv.id}">
+                       <div class="conversation-sender">${conv.otherUser}</div>
+                       <div class="conversation-meta">
+                           <span>${new Date(conv.lastMessageAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>
+                           <span class="conversation-status">${conv.status}</span>
+                       </div>
+                   </div>
+               `;
+           }).join('');
+
+           listEl.innerHTML = html;
+
+           $$('.conversation-item').forEach(item => {
+               eventManager.add(item, 'click', () => {
+                   const convId = parseInt(item.dataset.id);
+                   const conv = conversations.find(c => c.id === convId);
+                   appState.setState('currentConversation', conv);
+                   navigateTo('conversation', convId);
+               });
+           });
+       }
+
+       // Record Page
+       function renderRecordPage(toUserNickname = null) {
+           const page = $('#recordPage');
+           const selectedLength = appState.getState('selectedRecordLength');
+           const maxTime = selectedLength === 'short' ? MAX_SHORT_RECORD_TIME : MAX_LONG_RECORD_TIME;
+
+           page.innerHTML = `
+               <header class="app-header">
+                   <button class="header-action" id="backToMain" aria-label="뒤로가기">
+                       <div class="icon icon-back"></div>
+                   </button>
+                   <h1 class="header-title">${toUserNickname ? `${toUserNickname}에게 답장` : '새로운 속삭임'}</h1>
+                   <div></div>
+               </header>
+               <div class="app-content">
+                   <div class="recording-container">
+                       <div class="recording-controls">
+                           <button class="record-type-btn ${selectedLength === 'short' ? 'selected' : ''}" id="shortRecordBtn">
+                               짧은 울림 (${MAX_SHORT_RECORD_TIME}초)
+                           </button>
+                           <button class="record-type-btn ${selectedLength === 'long' ? 'selected' : ''}" id="longRecordBtn">
+                               깊은 울림 (${MAX_LONG_RECORD_TIME}초)
+                           </button>
+                       </div>
+                       <div class="record-timer" id="recordTimer">00:${String(maxTime).padStart(2, '0')}</div>
+                       <div class="record-status" id="recordStatus">버튼을 눌러 녹음을 시작하세요</div>
+                       <button class="record-button" id="recordBtn">
+                           <div class="icon icon-mic"></div>
+                       </button>
+                       <div class="recording-actions hidden" id="recordingActions">
+                           <audio class="audio-player hidden" id="audioPlayer" controls></audio>
+                           <div class="btn-group">
+                               <button class="btn btn-secondary" id="rerecordBtn">다시 녹음</button>
+                               <button class="btn btn-primary" id="sendBtn">속삭임 보내기</button>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           `;
+
+           setupRecordingEvents(toUserNickname);
+       }
+
+       function setupRecordingEvents(toUserNickname) {
+           const backBtn = $('#backToMain');
+           const shortBtn = $('#shortRecordBtn');
+           const longBtn = $('#longRecordBtn');
+           const recordBtn = $('#recordBtn');
+           const rerecordBtn = $('#rerecordBtn');
+           const sendBtn = $('#sendBtn');
+
+           eventManager.add(backBtn, 'click', () => {
+               resetRecordingState();
+               navigateTo('main');
+           });
+
+           eventManager.add(shortBtn, 'click', () => selectRecordLength('short'));
+           eventManager.add(longBtn, 'click', () => selectRecordLength('long'));
+           eventManager.add(recordBtn, 'click', toggleRecording);
+           eventManager.add(rerecordBtn, 'click', resetRecording);
+           eventManager.add(sendBtn, 'click', () => sendRecording(toUserNickname));
+
+           resetRecordingState();
+       }
+
+       function selectRecordLength(type) {
+           appState.setState('selectedRecordLength', type);
+           $('#shortRecordBtn').classList.toggle('selected', type === 'short');
+           $('#longRecordBtn').classList.toggle('selected', type === 'long');
+           
+           if (appState.getState('recordingState') === 'idle') {
+               const maxTime = type === 'short' ? MAX_SHORT_RECORD_TIME : MAX_LONG_RECORD_TIME;
+               $('#recordTimer').textContent = `00:${String(maxTime).padStart(2, '0')}`;
+           }
+       }
+
+       async function toggleRecording() {
+           const state = appState.getState('recordingState');
+           const recordBtn = $('#recordBtn');
+           const statusEl = $('#recordStatus');
+           const timerEl = $('#recordTimer');
+
+           if (state === 'recording') {
+               if (mediaRecorder && mediaRecorder.state === 'recording') {
+                   mediaRecorder.stop();
+                   clearInterval(recordingInterval);
+                   appState.setState('recordingState', 'idle');
+                   recordBtn.classList.remove('recording');
+                   recordBtn.innerHTML = '<div class="icon icon-mic"></div>';
+                   statusEl.textContent = '녹음 완료. 들어보거나 다시 녹음하세요.';
+                   $('#audioPlayer').classList.remove('hidden');
+                   $('#recordingActions').classList.remove('hidden');
+               }
+           } else {
+               const selectedLength = appState.getState('selectedRecordLength');
+               const user = appState.getState('currentUser');
+               
+               if (selectedLength === 'long' && user.heartPieces < LONG_RECORD_COST) {
+                   showToast(`깊은 울림을 녹음하려면 마음 조각 ${LONG_RECORD_COST}개가 필요합니다`);
+                   return;
+               }
+
+               try {
+                   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                   const options = { mimeType: 'audio/webm;codecs=opus' };
+                   
+                   if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                       options.mimeType = 'audio/webm';
+                   }
+
+                   mediaRecorder = new MediaRecorder(stream, options);
+                   audioChunks = [];
+
+                   mediaRecorder.ondataavailable = event => {
+                       audioChunks.push(event.data);
+                   };
+
+                   mediaRecorder.onstop = () => {
+                       if (audioChunks.length > 0) {
+                           const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+                           const audioUrl = URL.createObjectURL(audioBlob);
+                           $('#audioPlayer').src = audioUrl;
+                       }
+                       stream.getTracks().forEach(track => track.stop());
+                   };
+
+                   mediaRecorder.start();
+                   appState.setState('recordingState', 'recording');
+                   recordBtn.classList.add('recording');
+                   recordBtn.innerHTML = '<div class="icon icon-stop"></div>';
+                   statusEl.textContent = '녹음 중...';
+                   $('#audioPlayer').classList.add('hidden');
+                   $('#recordingActions').classList.add('hidden');
+
+                   recordingDuration = 0;
+                   const maxTime = selectedLength === 'short' ? MAX_SHORT_RECORD_TIME : MAX_LONG_RECORD_TIME;
+                   
+                   recordingInterval = setInterval(() => {
+                       recordingDuration++;
+                       timerEl.textContent = formatTime(recordingDuration);
+                       if (recordingDuration >= maxTime) {
+                           toggleRecording();
+                           showToast('최대 녹음 시간에 도달했습니다');
+                       }
+                   }, 1000);
+
+               } catch (err) {
+                   console.error('Microphone access failed:', err);
+                   let message = '마이크 접근에 실패했습니다.';
+                   if (err.name === 'NotAllowedError') {
+                       message += ' 마이크 권한을 허용해주세요.';
+                   }
+                   statusEl.textContent = message;
+                   showToast(message);
+               }
+           }
+       }
+
+       function resetRecording() {
+           resetRecordingState();
+           $('#recordStatus').textContent = '다시 녹음하세요.';
+       }
+
+       function resetRecordingState() {
+           audioChunks = [];
+           recordingDuration = 0;
+           if (recordingInterval) clearInterval(recordingInterval);
+           
+           appState.setState('recordingState', 'idle');
+           
+           const selectedLength = appState.getState('selectedRecordLength');
+           const maxTime = selectedLength === 'short' ? MAX_SHORT_RECORD_TIME : MAX_LONG_RECORD_TIME;
+           
+           const timerEl = $('#recordTimer');
+           const recordBtn = $('#recordBtn');
+           const statusEl = $('#recordStatus');
+           
+           if (timerEl) timerEl.textContent = `00:${String(maxTime).padStart(2, '0')}`;
+           if (recordBtn) {
+               recordBtn.classList.remove('recording');
+               recordBtn.innerHTML = '<div class="icon icon-mic"></div>';
+           }
+           if (statusEl) statusEl.textContent = '버튼을 눌러 녹음을 시작하세요.';
+           
+           $('#audioPlayer').classList.add('hidden');
+           $('#recordingActions').classList.add('hidden');
+       }
+
+       async function sendRecording(toUserNickname) {
+           if (audioChunks.length === 0) {
+               showToast('녹음된 내용이 없습니다');
+               return;
+           }
+
+           let receiver = toUserNickname;
+           if (!receiver) {
+               receiver = prompt('누구에게 속삭임을 보내시겠어요?');
+               if (!receiver) {
+                   showToast('받는 사람의 호출명을 입력해야 합니다');
+                   return;
+               }
+           }
+
+           const user = appState.getState('currentUser');
+           const selectedLength = appState.getState('selectedRecordLength');
+           
+           if (selectedLength === 'long') {
+               if (user.heartPieces >= LONG_RECORD_COST) {
+                   user.heartPieces -= LONG_RECORD_COST;
+                   appState.setState('currentUser', user);
+               } else {
+                   showToast(`깊은 울림을 보내려면 마음 조각 ${LONG_RECORD_COST}개가 필요합니다`);
+                   return;
+               }
+           }
+
+           const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+           await saveMessage(receiver, audioBlob, recordingDuration, 'voice');
+           
+           resetRecordingState();
+           showToast('속삭임이 전달되었습니다');
+           navigateTo('main');
+       }
+
+       // Message Management
+       async function saveMessage(receiverNickname, content, duration, type, textContent = null) {
+           const user = appState.getState('currentUser');
+           const conversations = appState.getState('conversations');
+           
+           const participantsId = [user.nickname, receiverNickname].sort().join('_');
+           let conversation = conversations.find(c => c.participants === participantsId);
+           
+           const currentTime = Date.now();
+           const messageId = Date.now() + Math.random();
+
+           if (!conversation) {
+               conversation = {
+                   id: Date.now(),
+                   participants: participantsId,
+                   otherUser: receiverNickname,
+                   lastMessageAt: currentTime,
+                   status: '대화 중',
+                   unread: false
+               };
+               conversations.push(conversation);
+               appState.setState('conversations', [...conversations]);
+           } else {
+               conversation.lastMessageAt = currentTime;
+               conversation.status = '대화 중';
+               appState.setState('conversations', [...conversations]);
+           }
+
+           const messages = appState.getState('messages');
+           const convMessages = messages.get(conversation.id) || [];
+           
+           const message = {
+               id: messageId,
+               conversationId: conversation.id,
+               senderNickname: user.nickname,
+               receiverNickname: receiverNickname,
+               audioBlob: type === 'voice' ? content : null,
+               duration: type === 'voice' ? duration : null,
+               sentAt: currentTime,
+               type: type,
+               textContent: type === 'text' ? (textContent || content) : null,
+               isRead: false
+           };
+
+           convMessages.push(message);
+           messages.set(conversation.id, convMessages);
+           appState.setState('messages', messages);
+       }
+
+       // Conversation Page
+       function renderConversationPage(conversationId) {
+           const page = $('#conversationPage');
+           const conversations = appState.getState('conversations');
+           const conversation = conversations.find(c => c.id === conversationId);
+           
+           if (!conversation) {
+               showToast('대화를 찾을 수 없습니다');
+               navigateTo('main');
+               return;
+           }
+
+           page.innerHTML = `
+               <header class="app-header">
+                   <button class="header-action" id="backToMainFromConv" aria-label="뒤로가기">
+                       <div class="icon icon-back"></div>
+                   </button>
+                   <h1 class="header-title">${conversation.otherUser}님과의 대화</h1>
+                   <div></div>
+               </header>
+               <div class="message-area" id="messageArea">
+                   <div class="loader"></div>
+               </div>
+               <div class="app-footer">
+                   <button class="btn btn-primary btn-full" id="replyBtn">답장하기</button>
+               </div>
+           `;
+
+           eventManager.add($('#backToMainFromConv'), 'click', () => navigateTo('main'));
+           eventManager.add($('#replyBtn'), 'click', () => navigateTo('record', conversation.otherUser));
+
+           loadMessages(conversationId);
+       }
+
+       function loadMessages(conversationId) {
+           const messageArea = $('#messageArea');
+           const messages = appState.getState('messages').get(conversationId) || [];
+           const user = appState.getState('currentUser');
+
+           if (messages.length === 0) {
+               messageArea.innerHTML = `
+                   <div class="empty-state">
+                       <div class="empty-state-title">대화를 시작해보세요</div>
+                       <div class="empty-state-description">첫 속삭임을 보내보세요</div>
+                   </div>
+               `;
+               return;
+           }
+
+           const html = messages.map(msg => {
+               const isSent = msg.senderNickname === user.nickname;
+               const content = msg.type === 'voice' ? 
+                   `<audio class="audio-player" controls src="${msg.audioBlob ? URL.createObjectURL(msg.audioBlob) : ''}"></audio>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">음성 ${formatTime(msg.duration)}</div>` :
+                   `<p>${msg.textContent.replace(/\n/g, '<br>')}</p>`;
+
+               return `
+                   <div class="message-bubble ${isSent ? 'sent' : 'received'}">
+                       ${content}
+                       <div class="message-timestamp">${new Date(msg.sentAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</div>
+                   </div>
+               `;
+           }).join('');
+
+           messageArea.innerHTML = html;
+           setTimeout(() => {
+               messageArea.scrollTop = messageArea.scrollHeight;
+           }, 0);
+       }
+
+       // Settings Page
+       function renderSettingsPage() {
+           const page = $('#settingsPage');
+           const user = appState.getState('currentUser');
+
+           page.innerHTML = `
+               <header class="app-header">
+                   <button class="header-action" id="backToMainFromSettings" aria-label="뒤로가기">
+                       <div class="icon icon-back"></div>
+                   </button>
+                   <h1 class="header-title">나의 흔적</h1>
+                   <div></div>
+               </header>
+               <div class="app-content">
+                   <div class="settings-item">
+                       <div class="settings-label">나의 호출명</div>
+                       <div class="settings-value">${user.nickname}</div>
+                   </div>
+                   <div class="settings-item">
+                       <div class="settings-label">보유한 마음 조각</div>
+                       <div class="settings-value">${user.heartPieces}개</div>
+                   </div>
+                   <div class="settings-item" id="resetBtn">
+                       <div class="settings-label">앱 초기화</div>
+                       <div class="settings-value" style="color: var(--accent-primary);">주의!</div>
+                   </div>
+                   <div class="settings-item">
+                       <div class="settings-label">앱 버전</div>
+                       <div class="settings-value">v1.0.0</div>
+                   </div>
+               </div>
+           `;
+
+           eventManager.add($('#backToMainFromSettings'), 'click', () => navigateTo('main'));
+           eventManager.add($('#resetBtn'), 'click', () => {
+               if (confirm('정말로 모든 데이터를 삭제하시겠습니까?')) {
+                   resetApp();
+               }
+           });
+       }
+
+       function resetApp() {
+           appState.setState('currentUser', { id: null, nickname: null, heartPieces: 5 });
+           appState.setState('conversations', []);
+           appState.setState('messages', new Map());
+           showToast('앱이 초기화되었습니다');
+           navigateTo('auth');
+       }
+
+       // Last Message Page (simplified for demo)
+       function renderLastMessagePage(conversationId) {
+           const page = $('#lastMessagePage');
+           page.innerHTML = `
+               <header class="app-header">
+                   <button class="header-action" id="backToConv" aria-label="뒤로가기">
+                       <div class="icon icon-back"></div>
+                   </button>
+                   <h1 class="header-title">마지막 한마디</h1>
+                   <div></div>
+               </header>
+               <div class="app-content">
+                   <p style="color: var(--text-secondary); margin-bottom: 24px;">이 여정의 끝에 마지막 한마디를 남길 수 있습니다.</p>
+                   <textarea id="lastMessageText" class="input-field" style="min-height: 120px; resize: vertical;" placeholder="마지막 말을 적어주세요... (최대 100자)" maxlength="100"></textarea>
+                   <div style="text-align: right; font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px;" id="charCounter">0/100</div>
+                   <button class="btn btn-primary btn-full" id="sendLastMessage">마지막 울림 보내기</button>
+               </div>
+           `;
+
+           const textarea = $('#lastMessageText');
+           const counter = $('#charCounter');
+           
+           eventManager.add($('#backToConv'), 'click', () => navigateTo('conversation', conversationId));
+           eventManager.add(textarea, 'input', () => {
+               counter.textContent = `${textarea.value.length}/100`;
+           });
+           eventManager.add($('#sendLastMessage'), 'click', () => {
+               const text = textarea.value.trim();
+               if (text) {
+                   showToast('마지막 한마디가 전달되었습니다');
+                   navigateTo('conversation', conversationId);
+               }
+           });
+       }
+
+       // Utilities
+       function formatTime(seconds) {
+           const min = Math.floor(seconds / 60);
+           const sec = seconds % 60;
+           return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+       }
+
+       function showToast(message, duration = 3000) {
+           let toast = $('.toast');
+           if (!toast) {
+               toast = document.createElement('div');
+               toast.className = 'toast';
+               document.body.appendChild(toast);
+           }
+
+           toast.textContent = message;
+           toast.classList.add('show');
+
+           if (toast.timeoutId) clearTimeout(toast.timeoutId);
+           toast.timeoutId = setTimeout(() => {
+               toast.classList.remove('show');
+           }, duration);
+       }
+
+       // App Initialization
+       function initApp() {
+           console.log('App initializing...');
+           const user = appState.getState('currentUser');
+           if (user && user.nickname) {
+               navigateTo('main');
+           } else {
+               navigateTo('auth');
+           }
+
+           // Add some demo data
+           setTimeout(() => {
+               if (appState.getState('conversations').length === 0) {
+                   const demoConversations = [
+                       {
+                           id: 1,
+                           participants: 'user_demo',
+                           otherUser: '신비로운 목소리',
+                           lastMessageAt: Date.now() - 3600000,
+                           status: '새로운 속삭임',
+                           unread: true
+                       },
+                       {
+                           id: 2,
+                           participants: 'user_echo',
+                           otherUser: '메아리',
+                           lastMessageAt: Date.now() - 7200000,
+                           status: '답장 기다리는 중',
+                           unread: false
+                       }
+                   ];
+                   appState.setState('conversations', demoConversations);
+               }
+           }, 1000);
+       }
+
+       // Event cleanup on page unload
+       window.addEventListener('beforeunload', () => {
+           eventManager.removeAll();
+       });
+
+       // Start the app
+       document.addEventListener('DOMContentLoaded', initApp);
+   </script>
+</body>
+</html>
